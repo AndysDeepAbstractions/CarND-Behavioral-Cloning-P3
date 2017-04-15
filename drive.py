@@ -40,7 +40,7 @@ class SimplePIController:
         # integral error
         self.integral += self.error
 
-        return 0.1 #self.Kp * self.error + self.Ki * self.integral
+        return 0.05 #self.Kp * self.error + self.Ki * self.integral
 
 
 controller = SimplePIController(0.1, 0.002)

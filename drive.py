@@ -33,19 +33,19 @@ class SimplePIController:
     def set_desired(self, desired):
         self.set_point = desired
 
-    def update(self, measurement):
+    def update(self, measurement,steering_angle):
         # proportional error
-        self.error = self.set_point - measurement
+        self.error = (self.set_point * (1- np.abs(steering_angle))) - measurement
         #self.error *= np.abs(self.error)
 
         # integral error
         self.integral += self.error
 
-        return 0.05 # self.Kp * self.error + self.Ki * self.integral
+        return 0.05 #self.Kp * self.error + self.Ki * self.integral
 
 
-controller = SimplePIController(0.1, 0.02)
-set_speed = 15
+controller = SimplePIController(0.01, 0.0002)
+set_speed = 5
 controller.set_desired(set_speed)
 
 
@@ -64,7 +64,7 @@ def telemetry(sid, data):
         image_array = np.asarray(image)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
-        throttle = controller.update(float(speed))
+        throttle = controller.update(float(speed),steering_angle)
 
         print(steering_angle, throttle)
         send_control(steering_angle, throttle)

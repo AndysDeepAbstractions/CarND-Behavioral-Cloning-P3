@@ -35,17 +35,16 @@ class SimplePIController:
 
     def update(self, measurement,steering_angle):
         # proportional error
-        self.error = (self.set_point * (1- np.abs(steering_angle))) - measurement
-        #self.error *= np.abs(self.error)
+        self.error = self.set_point - measurement
 
         # integral error
         self.integral += self.error
 
-        return 0.05 #self.Kp * self.error + self.Ki * self.integral
+        return self.Kp * self.error + self.Ki * self.integral
 
 
-controller = SimplePIController(0.01, 0.0002)
-set_speed = 5
+controller = SimplePIController(0.1, 0.002)
+set_speed = 9
 controller.set_desired(set_speed)
 
 

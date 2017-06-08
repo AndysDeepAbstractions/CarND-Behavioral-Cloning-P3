@@ -12,6 +12,8 @@ from PIL import Image
 from flask import Flask
 from io import BytesIO
 
+import cv2
+
 from keras.models import load_model
 import h5py
 from keras import __version__ as keras_version
@@ -28,26 +30,72 @@ class SimplePIController:
         self.Ki = Ki
         self.set_point = 0.
         self.error = 0.
-        self.integral = 0.
+        self.integral = 0.1/self.Ki
 
     def set_desired(self, desired):
         self.set_point = desired
 
     def update(self, measurement,steering_angle):
+        if(steering_angle > 1):
+            steering_angle_for_speed_adj = 1
+        elif(steering_angle < -1):
+            steering_angle_for_speed_adj = -1
+        else:
+            steering_angle_for_speed_adj = steering_angle
         # proportional error
-        self.error = self.set_point - measurement
+        target_speed = self.set_point * (1-(0.8*(np.abs(steering_angle_for_speed_adj))))
+        self.error = target_speed - measurement
+        if(self.error > 2):
+            self.error *= 1
+        elif(self.error < 0):
+            pass
+        elif(self.error < 5):
+            self.error *= 0.1
 
         # integral error
-        self.integral += self.error
-
-        return self.Kp * self.error + self.Ki * self.integral
+        self.integral += self.error#*np.abs(self.error)
+        self.integral = min([1/self.Ki,self.integral])
+        
+        result = self.Kp * self.error + self.Ki * self.integral
+        if(result < 0):
+            result *= 0.1
+        
+        if(measurement < 0.1 and measurement > -0.1):
+            result = -1
+            steering_angle *= -1
+        elif(measurement < 2.5):
+            result = 1
+        return result,steering_angle,self.integral
 
 
 controller = SimplePIController(0.1, 0.002)
-set_speed = 9
+set_speed =  22
 controller.set_desired(set_speed)
 
+class Preprocess():
+    use_HLS = True
+    image_shape     = (160,320,6)
+    
+    def __init__(self):
+        pass
+        
+    def preprocess_image(image):
+        result          = np.empty(list(Preprocess.image_shape))
+        #result[:,:,0:3] = cv2.merge((cv2.equalizeHist(np.uint8(image[:,:,0])), cv2.equalizeHist(np.uint8(image[:,:,1])), cv2.equalizeHist(np.uint8(image[:,:,2])))).astype(float)
+        result[:,:,0:3] = np.uint8(image)
+        if(Preprocess.use_HLS):
+            #result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HLS)
+            result[:,:,3:6]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HSV)
+            result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HLS)
+            #result[:,:,0:3]      = cv2.merge((cv2.equalizeHist(np.uint8(result[:,:,0])), cv2.equalizeHist(np.uint8(result[:,:,1])),cv2.equalizeHist(np.uint8(result[:,:,2])))).astype(float)
+            
+            for i in range(3):
+                result[:,:,i]      = cv2.equalizeHist(np.uint8(result[:,:,i]))
 
+            #result[:,:,3:6]      = result[:,-1::-1,3:6]
+
+        return result
+   
 @sio.on('telemetry')
 def telemetry(sid, data):
     if data:
@@ -61,11 +109,12 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        image_array = Preprocess.preprocess_image(image_array)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
-        throttle = controller.update(float(speed),steering_angle)
+        throttle,steering_angle,integral = controller.update(float(speed),steering_angle)
 
-        print(steering_angle, throttle)
+        print(steering_angle, throttle,integral)
         send_control(steering_angle, throttle)
 
         # save frame
@@ -75,7 +124,8 @@ def telemetry(sid, data):
             image.save('{}.jpg'.format(image_filename))
     else:
         # NOTE: DON'T EDIT THIS.
-        sio.emit('manual', data={}, skip_sid=True)
+        #sio.emit('manual', data={}, skip_sid=True)
+        sio.emit('manual', data={}, skip_sid=False)
 
 
 @sio.on('connect')

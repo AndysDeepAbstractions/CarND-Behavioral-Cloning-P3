@@ -10,18 +10,20 @@ Overview
 following Laps were recorded:
 
 	*Offroad
-	*Centered Drive Foward
+	*Centered Drive Foreward
 	*Right Side Drive Foreward (with additional Steering offset)
 	*Left Side Drive Foreward (with additional Steering offset)
-	*Centerd Backward
-	*Centerd Backward with digital steering
+	*Centerd Backward Drive
+	*Centerd Backward Drive with digital steering
 	*Drive in, out and throu Shadows
 	*Track exit corrections
 
+a training data example is saved as
+left_2017_04_29_16_46_10_924.jpg
 
 ## Model & Training
 
-The Pi Controller was extended to adapot the target speed with the steering
+The Pi Controller was extended to adapot the target speed with the steering for a kind of more natural drivefeeling
 
 I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV together as input.
 
@@ -68,13 +70,13 @@ Total params: 2,953,440
 Trainable params: 2,952,416
 Non-trainable params: 1,024
 
-The Model was saved periodicaly
+The Model was saved periodicaly to handle training interruptions.
 
 ## Video 
 
-Beause of low GPU und CPU specs trainded model was run on lowest screen resolution and graphics quality.
+Beause of very low GPU und CPU specs trainded model was deployed on lowest screen resolution and graphics quality with a 1/20x speed hack to make the Frames per Second reasonble dense.
 
-The Videos are saved as:
+The Videos are generated and saved as:
 
 recording_track1.mp4
 recording_track2.mp4

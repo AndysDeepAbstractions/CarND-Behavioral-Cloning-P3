@@ -83,15 +83,15 @@ class Preprocess():
         result          = np.empty(list(Preprocess.image_shape))
         #result[:,:,0:3] = cv2.merge((cv2.equalizeHist(np.uint8(image[:,:,0])), cv2.equalizeHist(np.uint8(image[:,:,1])), cv2.equalizeHist(np.uint8(image[:,:,2])))).astype(float)
         result[:,:,0:3] = np.uint8(image)
-        if(Preprocess.use_HLS):
-            #result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HLS)
+        if(Preprocess.use_HLS): # Experiments with Colorspace and equalizeHist for better steering in shadowd situations
             result[:,:,3:6]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HSV)
             result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HLS)
-            #result[:,:,0:3]      = cv2.merge((cv2.equalizeHist(np.uint8(result[:,:,0])), cv2.equalizeHist(np.uint8(result[:,:,1])),cv2.equalizeHist(np.uint8(result[:,:,2])))).astype(float)
+            result[:,:,0:3]      = cv2.merge((cv2.equalizeHist(np.uint8(result[:,:,0])), cv2.equalizeHist(np.uint8(result[:,:,1])),cv2.equalizeHist(np.uint8(result[:,:,2])))).astype(float)
             
             for i in range(3):
                 result[:,:,i]      = cv2.equalizeHist(np.uint8(result[:,:,i]))
 
+            # expiriments with mirrored version:
             #result[:,:,3:6]      = result[:,-1::-1,3:6]
 
         return result
@@ -109,6 +109,7 @@ def telemetry(sid, data):
         imgString = data["image"]
         image = Image.open(BytesIO(base64.b64decode(imgString)))
         image_array = np.asarray(image)
+        image_array = image_array[:,:,::-1]  # this line converts image from RGB to BGR
         image_array = Preprocess.preprocess_image(image_array)
         steering_angle = float(model.predict(image_array[None, :, :, :], batch_size=1))
 
@@ -124,9 +125,7 @@ def telemetry(sid, data):
             image.save('{}.jpg'.format(image_filename))
     else:
         # NOTE: DON'T EDIT THIS.
-        #sio.emit('manual', data={}, skip_sid=True)
-        sio.emit('manual', data={}, skip_sid=False)
-
+        sio.emit('manual', data={}, skip_sid=True)
 
 @sio.on('connect')
 def connect(sid, environ):

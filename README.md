@@ -20,12 +20,36 @@ following Laps were recorded:
 
 a training data example is saved as
 left_2017_04_29_16_46_10_924.jpg
+![left_2017_04_29_16_46_10_924.jpg](left_2017_04_29_16_46_10_924.jpg "left_2017_04_29_16_46_10_924.jpg")
+
+The steering argumentation values for
+
+
+| Situation                  |:Steering Argumentation:| 
+| -------------------------- |:----------------------:| 
+| left cam centerd drives    | +0.3                   |
+| centerd cam centerd drives | 0                      |
+| left cam centerd drives    | -0.3                   |
+| left cam left drives       | -1.8                   |
+| centerd cam left drives    | -1.2                   |
+| left cam left drives       | -.7                    |
+| left cam right drives      | -1.8                   |
+| centerd cam right drives   | -1.2                   |
+| left cam right drives      | -.7                    | 
+                  
+
+
+argumentation.png
+
 
 ## Model & Training
 
 The Pi Controller was extended to adapot the target speed with the steering for a kind of more natural drivefeeling
 
-I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV together as input.
+I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV together as input. The Goal there was to give the model richer information in shadowed parts of the road.
+
+![argumentation.png](argumentation.png "argumentation.png")
+
 
 The following Model was designed:
 
@@ -69,6 +93,8 @@ ________________________________________________________________________________
 Total params: 2,953,440
 Trainable params: 2,952,416
 Non-trainable params: 1,024
+
+The used activation functions are elu and linear. Experiments with a sigmoid layer before the linear layers at the end showed that this will improve the convergence speed (at least at the beginning) a lot.
 
 The Model was saved periodicaly to handle training interruptions.
 

@@ -20,6 +20,7 @@ following Laps were recorded:
 
 a training data example is saved as
 left_2017_04_29_16_46_10_924.jpg
+
 ![left_2017_04_29_16_46_10_924.jpg](left_2017_04_29_16_46_10_924.jpg "left_2017_04_29_16_46_10_924.jpg")
 
 The steering argumentation values for
@@ -45,7 +46,7 @@ A perspective transform with according steering adaption would be a futher appro
 
 The Pi Controller was extended to adapot the target speed with the steering for a kind of more natural feeling during drive and more Frames per distance in more difficult situations.
 
-I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV together as input. The Goal there was to give the model richer information in shadowed parts of the road.
+I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV and Histogramm enhancemend together as input. The Goal there was to give the model richer information in shadowed parts of the road.
 
 ![argumentation.png](argumentation.png "argumentation.png")
 
@@ -87,9 +88,6 @@ The Model was saved periodicaly to handle training interruptions.
 Beause of very low GPU und CPU specs on my moblie device the model was deployed on lowest screen resolution and graphics quality with a 1/20x speed hack to make the Frames per Second reasonble dense.
 
 The Videos are generated and saved as:
-
-recording_track1.mp4
-recording_track2.mp4
 
 ![recording_track1.mp4](recording_track1.mp4 "recording_track1.mp4")
 ![recording_track2.mp4](recording_track2.mp4 "recording_track2.mp4")

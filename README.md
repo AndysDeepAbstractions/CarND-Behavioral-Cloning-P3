@@ -46,7 +46,9 @@ A perspective transform with according steering adaption would be a futher appro
 
 The Pi Controller was extended to adapot the target speed with the steering for a kind of more natural feeling during drive and more Frames per distance in more difficult situations.
 
-I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV and Histogramm enhancemend together as input. The Goal there was to give the model richer information in shadowed parts of the road.
+I experimented with RGB / HSL / HSV and Histogramm enhancemend and end up using HSL HSV and Histogramm enhancemend together as input. The Goal there was to give the model richer information in shadowed parts of the road. 
+
+Using grayscale would make the model smaller but the squashed information will also make it even more difficult to distinguish shadows on the raad from real objects (see also graphic below).
 
 ![argumentation.png](argumentation.png "argumentation.png")
 

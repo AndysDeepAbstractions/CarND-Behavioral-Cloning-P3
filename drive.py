@@ -84,8 +84,8 @@ class Preprocess():
         #result[:,:,0:3] = cv2.merge((cv2.equalizeHist(np.uint8(image[:,:,0])), cv2.equalizeHist(np.uint8(image[:,:,1])), cv2.equalizeHist(np.uint8(image[:,:,2])))).astype(float)
         result[:,:,0:3] = np.uint8(image)
         if(Preprocess.use_HLS): # Experiments with Colorspace and equalizeHist for better steering in shadowd situations
-            result[:,:,3:6]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HSV)
-            result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_RGB2HLS)
+            result[:,:,3:6]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_BGR2HSV)
+            result[:,:,0:3]      = cv2.cvtColor((np.uint8(result[:,:,0:3])), cv2.COLOR_BGR2HLS)
             result[:,:,0:3]      = cv2.merge((cv2.equalizeHist(np.uint8(result[:,:,0])), cv2.equalizeHist(np.uint8(result[:,:,1])),cv2.equalizeHist(np.uint8(result[:,:,2])))).astype(float)
             
             for i in range(3):
